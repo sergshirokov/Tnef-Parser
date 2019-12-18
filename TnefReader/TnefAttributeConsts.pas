@@ -3,7 +3,7 @@ unit TnefAttributeConsts;
 interface
 
 uses
-  System.SysUtils;
+  SysUtils;
 
 type
   TTnefAttributeLevel = (
@@ -129,7 +129,8 @@ begin
   begin
     if (TnefAttributeLevels[i] = ALevel) then
     begin
-      Exit(i);
+      Result := i;
+      Exit;
     end;
   end;
 
@@ -144,7 +145,8 @@ begin
   begin
     if (TnefAttributeTypes[i] = AType) then
     begin
-      Exit(i);
+      Result := i;
+      Exit;
     end;
   end;
 
@@ -159,11 +161,12 @@ begin
   begin
     if (TnefAttributeTags[i] = ATag) then
     begin
-      Exit(i);
+      Result := i;
+      Exit;
     end;
   end;
 
-  Exit(agNull);
+  Result := agNull;
 end;
 
 end.

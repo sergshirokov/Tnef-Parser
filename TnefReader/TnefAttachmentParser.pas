@@ -3,7 +3,7 @@ unit TnefAttachmentParser;
 interface
 
 uses
-  System.Classes, System.SysUtils, Winapi.Windows,
+  Classes, SysUtils, Windows,
   TnefReader, TnefPropertyReader, TnefAttributeConsts, TnefAttribute, TnefPropertyTag,
   TnefPropertyConsts, TnefProperty;
 
@@ -374,12 +374,12 @@ function TAttachmentInfo.ExtractFileNameWithoutExt(const AFileName: string): str
 var
   ind: Integer;
 begin
-  ind := FileName.LastDelimiter('.' + PathDelim + DriveDelim);
-  if (ind < Low(string)) or (FileName.Chars[ind] <> '.') then
+  ind := LastDelimiter('.' + PathDelim + DriveDelim, FileName);
+  if (ind < 1) or (FileName[ind] <> '.') then
   begin
     ind := MaxInt;
   end;
-  Result := FileName.SubString(0, ind);
+  Result := Copy(FileName, 1, ind);
 end;
 
 function TAttachmentInfo.GenerateSaveToFileName(const AFileName: string): string;

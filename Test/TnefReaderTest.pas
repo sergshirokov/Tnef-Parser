@@ -3,7 +3,7 @@ unit TnefReaderTest;
 interface
 
 uses
-  System.Classes, System.SysUtils, Winapi.Windows, TestFrameWork,
+  Classes, SysUtils, Windows, TestFrameWork,
   TnefAttachmentParser;
 
 type
@@ -37,15 +37,15 @@ var
 begin
   baseFolder := '';
 
-  System.SysUtils.DeleteFile(baseFolder + 'AUTOEXEC.BAT');
-  System.SysUtils.DeleteFile(baseFolder + 'RtfCompressed.dat');
-  System.SysUtils.DeleteFile(baseFolder + 'boot.ini');
-  System.SysUtils.DeleteFile(baseFolder + 'CONFIG.SYS');
+  DeleteFile(PAnsiChar(baseFolder + 'AUTOEXEC.BAT'));
+  DeleteFile(PAnsiChar(baseFolder + 'RtfCompressed.dat'));
+  DeleteFile(PAnsiChar(baseFolder + 'boot.ini'));
+  DeleteFile(PAnsiChar(baseFolder + 'CONFIG.SYS'));
 
   stream := nil;
   parser := nil;
   try
-    stream := TFileStream.Create('..\..\data\winmail.dat', fmOpenRead);
+    stream := TFileStream.Create('.\data\winmail.dat', fmOpenRead);
 
     parser := TTnefAttachmentParser.Create();
 

@@ -3,7 +3,7 @@ unit TnefAttribute;
 interface
 
 uses
-  System.Classes, TnefReader, TnefPropertyReader;
+  Classes, TnefReader, TnefPropertyReader;
 
 type
   TTnefAttribute = class

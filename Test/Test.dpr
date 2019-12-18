@@ -5,7 +5,7 @@ uses
   TestExtensions,
   FastMMMonitorTest,
   GUITestRunner,
-  Vcl.Forms,
+  Forms,
   TnefReaderTest in 'TnefReaderTest.pas',
   TnefAttachmentParser in '..\TnefReader\TnefAttachmentParser.pas',
   TnefAttributeConsts in '..\TnefReader\TnefAttributeConsts.pas',

@@ -3,7 +3,7 @@ unit TnefProperty;
 interface
 
 uses
-  System.Classes, System.SysUtils, TnefPropertyReader;
+  Classes, SysUtils, TnefPropertyReader;
 
 type
   TTnefProperty = class
@@ -73,9 +73,12 @@ begin
 end;
 
 procedure TAttachDataProperty.Load;
+var
+  bytes: TBytes;
 begin
   PropertyReader.NextValue();
-  FGuid := TGUID.Create(PropertyReader.ReadBytes(16));
+  bytes := PropertyReader.ReadBytes(16);
+  Move(bytes[0], FGuid, SizeOf(FGuid));
   PropertyReader.ReadBytes(Content, PropertyReader.ValueLength - 16);
 end;
 

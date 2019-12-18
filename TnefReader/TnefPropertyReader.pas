@@ -3,7 +3,7 @@ unit TnefPropertyReader;
 interface
 
 uses
-  System.Classes, System.SysUtils, TnefReader, TnefPropertyTag, TnefPropertyName, TnefPropertyConsts;
+  Classes, SysUtils, TnefReader, TnefPropertyTag, TnefPropertyName, TnefPropertyConsts;
 
 type
   TTnefPropertyReader = class
@@ -51,6 +51,9 @@ type
 
 implementation
 
+uses
+  clTranslator;
+
 { TTnefPropertyReader }
 
 constructor TTnefPropertyReader.Create(AReader: TTnefReader);
@@ -70,7 +73,6 @@ end;
 function TTnefPropertyReader.DecodeAnsiString(const ABytes: TBytes): string;
 var
   len: Integer;
-  enc: TEncoding;
 begin
   len := Length(ABytes);
 
@@ -84,12 +86,7 @@ begin
     Result := '';
   end else
   begin
-    enc := FReader.GetEncoding();
-    try
-      Result := enc.GetString(ABytes, 0, len);
-    finally
-      enc.Free();
-    end;
+    Result := TclTranslator.GetString(ABytes, 0, len, FReader.GetEncoding());
   end;
 end;
 
@@ -111,7 +108,7 @@ begin
     Result := '';
   end else
   begin
-    Result := TEncoding.Unicode.GetString(ABytes, 0, len);
+    Result := TclTranslator.GetString(ABytes, 0, len, 'utf-8');
   end;
 end;
 
@@ -292,7 +289,8 @@ var
 begin
   if (not PropertyTag.IsNamed) then Exit;
 
-  guid := TGUID.Create(FReader.ReadBytes(16));
+  bytes := FReader.ReadBytes(16);
+  Move(bytes[0], guid, SizeOf(guid));
 
   kind := GetTnefNameIdKind(FReader.ReadInt32());
 

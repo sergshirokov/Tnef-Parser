@@ -3,7 +3,7 @@ unit TnefReader;
 interface
 
 uses
-  System.Classes, System.SysUtils, TnefAttributeConsts;
+  Classes, SysUtils, TnefAttributeConsts;
 
 type
   TTnefReader = class
@@ -29,7 +29,7 @@ type
   public
     constructor Create(AInputStream: TStream);
 
-    function GetEncoding: TEncoding;
+    function GetEncoding: string;
     function NextAttribute: Boolean;
     procedure ValidateChecksum;
 
@@ -53,7 +53,7 @@ type
 implementation
 
 uses
-  TnefAttribute;
+  TnefAttribute, clTranslator;
 
 const
   TnefSignature = $223e9f78;
@@ -91,13 +91,64 @@ begin
   Result := GetTnefAttributeType(TnefAttributeTags[AttributeTag] and $F0000);
 end;
 
-function TTnefReader.GetEncoding: TEncoding;
-begin
-  try
-    Result := TEncoding.GetEncoding(OemCodePage);
-  except
-    Result := TEncoding.Default.Clone();
+type
+  TclCharSetCodePage = record
+    CodePage: Integer;
+    Name: string[20];
   end;
+
+const
+  CharSetCodePages: array [0..34] of TclCharSetCodePage = (
+    (CodePage: 1250; Name: 'windows-1250'),
+    (CodePage: 1251; Name: 'windows-1251'),
+    (CodePage: 1252; Name: 'windows-1252'),
+    (CodePage: 1253; Name: 'windows-1253'),
+    (CodePage: 1254; Name: 'windows-1254'),
+    (CodePage: 1255; Name: 'windows-1255'),
+    (CodePage: 1256; Name: 'windows-1256'),
+    (CodePage: 1257; Name: 'windows-1257'),
+    (CodePage: 1258; Name: 'windows-1258'),
+    (CodePage: 28591; Name: 'iso-8859-1'),
+    (CodePage: 28592; Name: 'iso-8859-2'),
+    (CodePage: 28593; Name: 'iso-8859-3'),
+    (CodePage: 28594; Name: 'iso-8859-4'),
+    (CodePage: 28595; Name: 'iso-8859-5'),
+    (CodePage: 28596; Name: 'iso-8859-6'),
+    (CodePage: 28597; Name: 'iso-8859-7'),
+    (CodePage: 28598; Name: 'iso-8859-8'),
+    (CodePage: 28599; Name: 'iso-8859-9'),
+    (CodePage: 28603; Name: 'iso-8859-13'),
+    (CodePage: 28605; Name: 'iso-8859-15'),
+    (CodePage: 866; Name: 'ibm866'),
+    (CodePage: 866; Name: 'cp866'),
+    (CodePage: 1200; Name: 'utf-16'),
+    (CodePage: 12000; Name: 'utf-32'),
+    (CodePage: 65000; Name: 'utf-7'),
+    (CodePage: 65001; Name: 'utf-8'),
+    (CodePage: 20127; Name: 'us-ascii'),
+    (CodePage: 28591; Name: 'Latin1'),
+    (CodePage: 10007; Name: 'x-mac-cyrillic'),
+    (CodePage: 21866; Name: 'koi8-u'),
+    (CodePage: 20866; Name: 'koi8-r'),
+    (CodePage: 932; Name: 'shift-jis'),
+    (CodePage: 932; Name: 'shift_jis'),
+    (CodePage: 50220; Name: 'iso-2022-jp'),
+    (CodePage: 50220; Name: 'csISO2022JP')
+  );
+
+function TTnefReader.GetEncoding: string;
+var
+  i: Integer;
+begin
+  for i := Low(CharSetCodePages) to High(CharSetCodePages) do
+  begin
+    if (CharSetCodePages[i].CodePage = OemCodePage) then
+    begin
+      Result := CharSetCodePages[i].Name;
+      Exit;
+    end;
+  end;
+  Result := '';
 end;
 
 function TTnefReader.GetRawReadPosition: Int64;
@@ -111,7 +162,8 @@ begin
 
   if (RawReadPosition >= FInputStream.Size) then
   begin
-    Exit(False);
+    Result := False;
+    Exit;
   end;
 
   FAttributeLevel := ReadAttributeLevel();
@@ -125,7 +177,7 @@ begin
 
   ReadAttributeValue();
 
-  Exit(True);
+  Result := True;
 end;
 
 function TTnefReader.ReadAttributeLevel: TTnefAttributeLevel;
@@ -169,7 +221,7 @@ var
   readLength: Integer;
 begin
   SetLength(Result, ALength);
-  readLength := FInputStream.Read(Result, 0, ALength);
+  readLength := FInputStream.Read(Result[0], ALength);
 
   if (readLength <> ALength) then
   begin
@@ -208,7 +260,7 @@ begin
     end;
 
     buf := ReadBytes(n);
-    ADestination.Write(buf, 0, n);
+    ADestination.Write(buf[0], n);
     Dec(ALength, n);
   end;
 end;
@@ -255,7 +307,6 @@ function TTnefReader.ReadString: string;
 var
   bytes: TBytes;
   len: Integer;
-  enc: TEncoding;
 begin
   bytes := ReadBytes(AttributeLength);
 
@@ -265,12 +316,7 @@ begin
     Dec(len);
   end;
 
-  enc := GetEncoding();
-  try
-    Result := enc.GetString(bytes, 0, len);
-  finally
-    enc.Free();
-  end;
+  Result := TclTranslator.GetString(bytes, 0, len, GetEncoding());
 end;
 
 procedure TTnefReader.UpdateCheckSum(const ABuffer: TBytes);

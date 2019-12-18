@@ -3,7 +3,7 @@ unit TnefPropertyConsts;
 interface
 
 uses
-  System.SysUtils;
+  SysUtils;
 
 type
   TTnefPropertyType = (
@@ -1060,11 +1060,12 @@ begin
   begin
     if (TnefPropertyTypes[i] = AType) then
     begin
-      Exit(i);
+      Result := i;
+      Exit;
     end;
   end;
 
-  Exit(ptUnspecified);
+  Result := ptUnspecified;
 end;
 
 function GetTnefPropertyId(AId: SmallInt): TTnefPropertyId;
@@ -1075,11 +1076,12 @@ begin
   begin
     if (TnefPropertyIds[i] = AId) then
     begin
-      Exit(i);
+      Result := i;
+      Exit;
     end;
   end;
 
-  Exit(piNull);
+  Result := piNull;
 end;
 
 end.

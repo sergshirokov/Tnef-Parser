@@ -1,5 +1,7 @@
 # Parse TNEF (Winmail.dat) Attachment in Delphi
 
+## This fork is for Delphi 2007
+
 <img align="left" src="https://www.clevercomponents.com/images/tnefparser-page-2.jpg" />
 
 Transport Neutral Encapsulation Format (TNEF) is a proprietary email attachment format used by Microsoft Outlook when when sending a message using either Rich Text Format or HTML Format. An attached file with TNEF encoding is most often named winmail.dat or win.dat, and has a MIME type of "application/ms-tnef".

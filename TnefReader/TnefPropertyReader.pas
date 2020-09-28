@@ -3,7 +3,7 @@ unit TnefPropertyReader;
 interface
 
 uses
-  Classes, SysUtils, TnefReader, TnefPropertyTag, TnefPropertyName, TnefPropertyConsts;
+  Classes, SysUtils, Windows, TnefReader, TnefPropertyTag, TnefPropertyName, TnefPropertyConsts;
 
 type
   TTnefPropertyReader = class
@@ -93,7 +93,7 @@ end;
 
 function TTnefPropertyReader.DecodeUnicodeString(const ABytes: TBytes): string;
 var
-  len: Integer;
+  len, rlen: Integer;
 begin
   len := Length(ABytes);
 
@@ -104,12 +104,18 @@ begin
     Dec(len, 2);
   end;
 
-  if (len < 2) then
+  Result := '';
+
+  if (len > 1) then
   begin
-    Result := '';
-  end else
-  begin
-    Result := TclTranslator.GetString(ABytes, 0, len, 'utf-8');
+    rlen := WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK or WC_DISCARDNS or WC_SEPCHARS or WC_DEFAULTCHAR,
+      @ABytes[0], len div 2, nil, 0, nil, nil);
+    SetLength(Result, rlen);
+    if (rlen > 0) then
+    begin
+      WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK or WC_DISCARDNS or WC_SEPCHARS or WC_DEFAULTCHAR,
+      @ABytes[0], len div 2, @Result[1], rlen, nil, nil);
+    end;
   end;
 end;
 
